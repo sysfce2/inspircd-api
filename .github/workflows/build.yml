@@ -18,8 +18,8 @@ jobs:
     container: alpine:edge
     runs-on: ubuntu-latest
     env:
-      INSPIRCD_BRANCHES: insp4 master
-      INSPIRCD_TAGS: v4 v5
+      MKAPI_BRANCHES: insp4 master
+      MKAPI_TAGS: v4 v5
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
