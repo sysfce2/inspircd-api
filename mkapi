@@ -89,6 +89,10 @@ with tempfile.TemporaryDirectory() as git:
         if os.system(f"{GIT} clean -dfx && {GIT} reset --hard && {GIT} checkout {reference}"):
             sys.exit(1)
 
+        if not os.path.exists("docs/Doxyfile"):
+            print(f"Skipping API docs for {CC_BOLD}{reference}{CC_RESET} as it lacks a Doxyfile!")
+            continue
+
         print(f"Building API docs for {CC_BOLD}{reference}{CC_RESET} ...")
         with open("docs/Doxyfile", "a") as fh:
             fh.write(f"PROJECT_NUMBER = {reference}")
