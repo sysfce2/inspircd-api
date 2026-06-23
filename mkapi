@@ -77,7 +77,7 @@ with tempfile.TemporaryDirectory() as git:
                 versions = re.match(r'^v((((\d+)\.\d+)\.\d+).*)', tag)
                 if not versions:
                     continue
-                if not tag in references:
+                if tag not in references:
                     references[tag] = []
                 for version in versions.groups():
                     references[tag].append(version)
@@ -100,7 +100,7 @@ with tempfile.TemporaryDirectory() as git:
                 continue
             print(f"Copying API docs from {CC_BOLD}{DOXYGEN_DIR}{CC_RESET} to {CC_BOLD}{site_dir}{CC_RESET} ...")
             shutil.copytree(DOXYGEN_DIR, site_dir)
-            if not reference in docs:
+            if reference not in docs:
                 docs[reference] = []
             docs[reference].append(directory)
 
