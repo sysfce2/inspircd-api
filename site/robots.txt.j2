@@ -1,0 +1,8 @@
+# www.robotstxt.org
+
+User-agent: *
+{%- for directories in docs.values() %}
+{%- for directory in directories %}
+Disallow: /{{ directory }}
+{%- endfor %}
+{%- endfor %}

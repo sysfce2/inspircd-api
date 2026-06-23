@@ -105,10 +105,12 @@ with tempfile.TemporaryDirectory() as git:
                 docs[reference] = []
             docs[reference].append(directory)
 
-env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
-template = env.get_template("index.html.j2")
-with open(os.path.join(SITE_DIR, "index.html"), "w") as fh:
-    fh.write(template.render(
-        docs=docs,
-        time=datetime.datetime.now()
-    ))
+env = jinja2.Environment(loader=jinja2.FileSystemLoader(SITE_DIR))
+for file in os.listdir(SITE_DIR):
+    if file.endswith(".j2"):
+        template = env.get_template(file)
+        with open(os.path.join(SITE_DIR, file.removesuffix(".j2")), "w") as fh:
+            fh.write(template.render(
+                docs=docs,
+                time=datetime.datetime.now()
+            ))
