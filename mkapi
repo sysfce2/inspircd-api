@@ -54,11 +54,15 @@ if not shutil.which(DOXYGEN):
     error(f"Doxygen ({DOXYGEN}) must be installed to build the API docs")
 
 SITE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'site')
-for file in os.listdir(SITE_DIR):
-    abs_file = os.path.join(SITE_DIR, file)
-    if os.path.isdir(abs_file) and os.path.exists(os.path.join(abs_file, 'doxygen.css')):
-        print(f"Removing {CC_BOLD}{abs_file}{CC_RESET} from a previous run ...")
-        shutil.rmtree(abs_file)
+for type in "branch tag".split():
+    abs_dir = os.path.join(SITE_DIR, type)
+    if not os.path.isdir(abs_dir):
+        continue
+    for file in os.listdir(abs_dir):
+        abs_file = os.path.join(abs_dir, file)
+        if os.path.isdir(abs_file) and os.path.exists(os.path.join(abs_file, 'doxygen.css')):
+            print(f"Removing {CC_BOLD}{abs_file}{CC_RESET} from a previous run ...")
+            shutil.rmtree(abs_file)
 
 docs = {}
 with tempfile.TemporaryDirectory() as git:
@@ -70,7 +74,7 @@ with tempfile.TemporaryDirectory() as git:
     # Build the list of refs to build docs for.
     references = {}
     for branch in sorted(INSPIRCD_BRANCHES, reverse=True):
-        references[branch] = [branch]
+        references[branch] = {branch: f"branch/{branch}"}
     tags = subprocess.check_output([GIT, 'tag', '--list', '--sort', '-creatordate'], encoding='utf-8').splitlines()
     for tag_prefix in sorted(INSPIRCD_TAGS, reverse=True):
         for tag in tags:
@@ -79,9 +83,9 @@ with tempfile.TemporaryDirectory() as git:
                 if not versions:
                     continue
                 if tag not in references:
-                    references[tag] = []
+                    references[tag] = {}
                 for version in versions.groups():
-                    references[tag].append(version)
+                    references[tag][version] = f"tag/{version}"
 
     DOXYGEN_DIR = os.path.join(git, 'docs', 'doxygen', 'html')
     for reference, directories in references.items():
@@ -99,15 +103,15 @@ with tempfile.TemporaryDirectory() as git:
         if subprocess.call([DOXYGEN, 'docs/Doxyfile'], stdout=subprocess.DEVNULL):
             sys.exit(1)
 
-        for directory in directories:
+        for version, directory in directories.items():
             site_dir = os.path.join(SITE_DIR, directory)
             if os.path.exists(site_dir):
                 continue
             print(f"Copying API docs from {CC_BOLD}{DOXYGEN_DIR}{CC_RESET} to {CC_BOLD}{site_dir}{CC_RESET} ...")
             shutil.copytree(DOXYGEN_DIR, site_dir)
             if reference not in docs:
-                docs[reference] = []
-            docs[reference].append(directory)
+                docs[reference] = {}
+            docs[reference][version] = directory
 
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(SITE_DIR))
 for file in os.listdir(SITE_DIR):

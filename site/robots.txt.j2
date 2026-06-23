@@ -2,7 +2,7 @@
 
 User-agent: *
 {%- for directories in docs.values() %}
-{%- for directory in directories %}
+{%- for directory in directories.values() %}
 Disallow: /{{ directory }}
 {%- endfor %}
 {%- endfor %}

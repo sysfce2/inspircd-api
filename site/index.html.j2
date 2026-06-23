@@ -24,8 +24,8 @@
 		{%- for version, directories in docs.items() %}
 			<h2>{{ version }}</h2>
 			<ul>
-			{%- for directory in directories %}
-				<li><a href="{{ directory }}">{{ directory }}</a></li>
+			{%- for version, directory in directories.items() %}
+				<li><a href="{{ directory }}">{{ version }}</a></li>
 			{%- endfor %}
 			</ul>
 		{%- endfor %}
